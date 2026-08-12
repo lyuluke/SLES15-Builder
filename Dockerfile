@@ -1,9 +1,8 @@
-# 使用 opensuse/leap:15.6 作为基础镜像（100% 兼容 SLES 15）
 FROM opensuse/leap:15.6
 
 LABEL maintainer="DiagnosticHub-SLES15-Builder"
 
-# 1. 安装 C++ 工具链、CMake 以及你代码所需的所有 Qt6 组件 (Base + SVG)
+# 1. 安装编译工具和 Qt6 开发库
 RUN zypper refresh && \
     zypper install -y \
     gcc \
@@ -18,19 +17,15 @@ RUN zypper refresh && \
     libxcb-devel && \
     zypper clean -a
 
-# 2. 修复 Qt6 qmake 兼容性（linuxdeployqt 依赖此机制寻找 Qt 库路径）
-RUN ln -s /usr/bin/qmake6 /usr/bin/qmake
-
-# 3. 部署 linuxdeployqt（提前解压并全局安装）
+# 2. 安装专门针对 Qt6 的打包利器：CQtDeployer
 WORKDIR /tmp
-RUN wget -O linuxdeployqt.AppImage https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage && \
-    chmod +x linuxdeployqt.AppImage && \
-    ./linuxdeployqt.AppImage --appimage-extract && \
-    mv squashfs-root /opt/linuxdeployqt && \
-    ln -s /opt/linuxdeployqt/AppRun /usr/local/bin/linuxdeployqt && \
-    rm linuxdeployqt.AppImage
+RUN wget -O CQtDeployer.AppImage https://github.com/QuasarApp/CQtDeployer/releases/download/v1.6.0/CQtDeployer_1.6.0_Linux_x86_64.AppImage && \
+    chmod +x CQtDeployer.AppImage && \
+    ./CQtDeployer.AppImage --appimage-extract && \
+    mv squashfs-root /opt/cqtdeployer && \
+    ln -s /opt/cqtdeployer/AppRun /usr/local/bin/cqtdeployer && \
+    rm CQtDeployer.AppImage
 
-# 4. 设定工作区
 WORKDIR /workspace
 
 CMD ["/bin/bash"]
