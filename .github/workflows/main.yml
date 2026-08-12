@@ -40,4 +40,4 @@ jobs:
           file: ./Dockerfile
           push: true
           # 自动打标签为你 Docker Hub 账号下的 sles15-qt-builder:latest
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/sles15-qt-builder:latest
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/sles15-qt-builder:latest
